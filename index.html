@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Terminal Dream</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Courier New',monospace;
+  background:#0a0a0a;
+  color:#00ff88;
+  overflow-x:hidden;
+}
+/* ── Scanline overlay ── */
+.scanline {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,255,136,.015) 2px,rgba(0,255,136,.015) 4px);
+  pointer-events:none; z-index:1000;
+}
+/* ── Nav ── */
+nav {
+  position:fixed; top:0; width:100%;
+  background:rgba(10,10,10,.95);
+  backdrop-filter:blur(10px);
+  padding:.9rem 2rem;
+  border-bottom:2px solid #00ff88;
+  z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+}
+nav a { color:#00ff88; text-decoration:none; margin:0 .8rem; font-size:.9rem; transition:all .3s; }
+nav a:hover { color:#00ffff; text-shadow:0 0 10px #00ffff; }
+.logo { font-size:1.2rem; font-weight:bold; letter-spacing:2px; }
+/* ── Glitch ── */
+.glitch { position:relative; }
+.glitch::before,.glitch::after { content:attr(data-text); position:absolute; top:0; left:0; width:100%; height:100%; }
+.glitch::before { animation:g1 2s infinite; color:#ff0080; z-index:-1; }
+.glitch::after { animation:g2 3s infinite; color:#00ffff; z-index:-2; }
+@keyframes g1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(-2px,-2px)} 60%{transform:translate(2px,2px)} 80%{transform:translate(2px,-2px)} }
+@keyframes g2 { 0%,100%{transform:translate(0)} 20%{transform:translate(2px,-2px)} 40%{transform:translate(2px,2px)} 60%{transform:translate(-2px,-2px)} 80%{transform:translate(-2px,2px)} }
+/* ── Sections ── */
+section { min-height:100vh; padding:6rem 2rem 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; }
+/* ── Hero ── */
+.hero { background:linear-gradient(135deg,#0a0a0a 0%,#1a0a1a 100%); text-align:center; }
+.hero h1 { font-size:4rem; margin-bottom:1rem; text-shadow:0 0 20px #00ff88; }
+.hero .tagline { font-size:1.5rem; color:#ff0080; margin-bottom:2rem; text-shadow:0 0 10px #ff0080; }
+.hero .description { max-width:780px; line-height:1.8; margin-bottom:2.5rem; color:#aaffcc; }
+/* ── Pressure meter ── */
+.pressure-meter { width:100%; max-width:600px; height:30px; background:#1a1a1a; border:2px solid #00ff88; position:relative; overflow:hidden; margin:1.5rem 0; }
+.pressure-fill { height:100%; background:linear-gradient(90deg,#00ff88,#ffff00,#ff0080); animation:ppulse 3s ease-in-out infinite; }
+@keyframes ppulse { 0%,100%{width:30%} 50%{width:90%} }
+.pressure-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#0a0a0a; font-weight:bold; mix-blend-mode:difference; text-shadow:0 0 5px #fff; }
+/* ── CTA ── */
+.cta-button {
+  background:linear-gradient(45deg,#00ff88,#00ffff); color:#0a0a0a;
+  padding:1rem 2.5rem; font-size:1.2rem; border:none; cursor:pointer;
+  font-family:'Courier New',monospace; font-weight:bold; text-transform:uppercase;
+  transition:all .3s; box-shadow:0 0 20px rgba(0,255,136,.5);
+}
+.cta-button:hover { transform:scale(1.05); box-shadow:0 0 30px rgba(0,255,136,.8); }
+.cta-button.launch {
+  background:linear-gradient(45deg,#ff0080,#00ffff);
+  padding:1.4rem 3.5rem;
+  font-size:1.5rem;
+  box-shadow:0 0 35px rgba(255,0,128,0.7);
+}
+.cta-button.launch:hover {
+  transform:scale(1.08);
+  box-shadow:0 0 60px rgba(0,255,255,0.9);
+}
+.warning-txt { color:#ff0080; font-size:.9rem; margin-top:1rem; text-transform:uppercase; letter-spacing:2px; }
+/* ── Feature cards ── */
+.content { background:#0f0f0f; }
+.feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.8rem; max-width:1200px; width:100%; margin-top:2.5rem; }
+.feature-card { background:rgba(0,255,136,.05); border:1px solid #00ff88; padding:2rem; transition:all .3s; }
+.feature-card:hover { background:rgba(0,255,136,.1); border-color:#00ffff; box-shadow:0 0 20px rgba(0,255,136,.3); transform:translateY(-5px); }
+.feature-card h3 { color:#ff0080; margin-bottom:.8rem; font-size:1.3rem; text-shadow:0 0 10px #ff0080; }
+.feature-card p { color:#aaffcc; line-height:1.6; }
+/* ── Mechanics ── */
+.mechanics-section { background:#0a0a0a; }
+.mechanic-item { background:rgba(255,0,128,.05); border-left:3px solid #ff0080; padding:1.2rem 1.5rem; margin-bottom:.8rem; max-width:780px; width:100%; }
+.mechanic-item h4 { color:#00ffff; margin-bottom:.4rem; font-size:1.1rem; }
+.mechanic-item p { color:#aaffcc; line-height:1.5; }
+h2 { font-size:2.3rem; margin-bottom:.8rem; text-align:center; color:#00ffff; text-shadow:0 0 15px #00ffff; }
+.sub { color:#aaffcc; text-align:center; max-width:700px; margin-bottom:1rem; line-height:1.6; }
+/* ── About ── */
+.about-section { background:#0f0f0f; }
+/* ── Footer ── */
+footer { background:#0a0a0a; border-top:2px solid #00ff88; padding:2rem; text-align:center; color:#aaffcc; }
+/* ── Responsive ── */
+@media(max-width:700px){
+  .hero h1{font-size:2.4rem} .hero .tagline{font-size:1.1rem}
+  nav{flex-direction:column;gap:.6rem}
+  .feature-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo glitch" data-text="TERMINAL DREAM">TERMINAL DREAM</div>
+  <div>
+    <a href="#features">FEATURES</a>
+    <a href="#mechanics">MECHANICS</a>
+    <a href="#about">ABOUT</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 class="glitch" data-text="TERMINAL DREAM">TERMINAL DREAM</h1>
+  <p class="tagline">SURVIVE. ADAPT. EVOLVE.</p>
+  <p class="description">
+    You are a fractured system trapped inside a collapsing digital dream.
+    Endless hostile processes flood your terminal, each turn pushing the system closer to overload.
+    Manage Pressure, ration your actions, and survive long enough to evolve.
+  </p>
+  <div class="pressure-meter">
+    <div class="pressure-fill"></div>
+    <div class="pressure-label">PRESSURE: CRITICAL</div>
+  </div>
+  <button class="cta-button launch" onclick="window.open('theblacksilence.html', '_blank')">▶ LAUNCH GAME</button>
+  <p class="warning-txt">⚠ SYSTEM COLLAPSE IMMINENT ⚠</p>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="content">
+  <h2>CORE SYSTEMS</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>Tactical Turn-Based Combat</h3>
+      <p>Fight multiple enemies at once in tight, readable encounters. Attacks build Pressure, Blocks generate shields, Parries are risky counters.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Pressure, Not Just Damage</h3>
+      <p>Global intensity meter rises when you attack and falls when you defend. High Pressure makes enemies hit harder. Smart pacing wins.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Endless Roguelite Progression</h3>
+      <p>Short brutal runs. Scaling difficulty. Mid-wave upgrades. Permanent relics earned on death — every run improves the next.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Clear, Readable Systems</h3>
+      <p>Every mechanic is explained through the UI. Death screens show exactly what you gained and why you died.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANICS -->
+<section id="mechanics" class="mechanics-section">
+  <h2>COMBAT MECHANICS</h2>
+  <p class="sub">Every action shapes the battlefield. Master the loop.</p>
+  <div style="max-width:780px;width:100%">
+    <div class="mechanic-item"><h4>⚔ ATTACK</h4><p>Deal damage but increase global Pressure — aggression has a cost.</p></div>
+    <div class="mechanic-item"><h4>🛡 BLOCK</h4><p>Generate shields and reduce incoming damage while lowering Pressure.</p></div>
+    <div class="mechanic-item"><h4>⚡ PARRY</h4><p>High-risk, high-reward. Perfect timing blocks fully and heals.</p></div>
+    <div class="mechanic-item"><h4>🔥 PRESSURE</h4><p>Core mechanic. Halves each turn. Too high = overwhelmed. Too low = ground down.</p></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="about-section">
+  <h2>ABOUT THE PROJECT</h2>
+  <p class="sub" style="margin-top:.5rem">
+    Terminal Dream is a fast, high-pressure, turn-based roguelite where combat revolves around control, timing, and survival under escalating threat.
+    Created with the assistance of AI tools — exploring tension between aggression and defense in a collapsing digital world.
+  </p>
+  <div class="pressure-meter" style="max-width:500px;margin-top:1.5rem">
+    <div class="pressure-fill"></div>
+    <div class="pressure-label">SYSTEM INTEGRITY</div>
+  </div>
+  <p style="color:#ff0080;margin-top:1.2rem;text-align:center">
+    Every decision shapes your survival. Every turn brings you closer to evolution — or extinction.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="font-size:1.1rem;color:#00ff88">TERMINAL DREAM © 2026</p>
+  <p style="margin-top:.6rem;font-size:.85rem">A digital survival experiment</p>
+  <p style="color:#ff0080;margin-top:1rem;font-size:.85rem;letter-spacing:2px">[ SYSTEM STATUS: OPERATIONAL ]</p>
+</footer>
+
+</body>
+</html>

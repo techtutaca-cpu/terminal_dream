@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terminal Dream - Infinite</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e, #0f0c29);
+      background-size: 400% 400%;
+      animation: bg-shift 12s ease infinite;
+      color: #0f0;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    @keyframes bg-shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 35px;
+      background: rgba(0,0,0,0.75);
+      border: 4px solid #0f0;
+      border-radius: 18px;
+      box-shadow: 0 0 60px #0f0;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3.2em;
+      margin: 0 0 10px;
+      text-shadow: 0 0 20px #0ff;
+    }
+
+    /* ── Meta panel ── */
+    .meta-info {
+      background: rgba(0,255,0,0.1);
+      border: 2px solid #0f0;
+      padding: 12px;
+      margin: 15px 0;
+      font-size: 1.3em;
+      border-radius: 8px;
+    }
+
+    /* ── Music controls ── */
+    .music-controls {
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .music-btn {
+      padding: 12px 28px;
+      font-size: 1.2em;
+      background: #000;
+      color: #0ff;
+      border: 3px solid #0ff;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .music-btn:hover { background: #0ff; color: #000; box-shadow: 0 0 30px #0ff; }
+    .music-btn.playing {
+      background: #ff00ff; border-color: #ff00ff; color: #000; box-shadow: 0 0 40px #ff00ff;
+    }
+    .volume-container { display: flex; align-items: center; gap: 10px; color: #0ff; font-size: 1.1em; }
+    input[type="range"] {
+      -webkit-appearance: none; width: 180px; height: 8px;
+      background: #333; border-radius: 5px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px;
+      background: #0ff; border-radius: 50%; box-shadow: 0 0 10px #0ff; cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px; height: 20px;
+      background: #0ff; border-radius: 50%; box-shadow: 0 0 10px #0ff; cursor: pointer;
+    }
+
+    /* ── Battle grid ── */
+    .battle-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 50px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .entity {
+      padding: 25px;
+      border: 3px solid #0ff;
+      border-radius: 12px;
+      background: rgba(0,0,40,0.6);
+      min-width: 260px;
+      box-shadow: 0 0 30px #0ff;
+    }
+    .entity.shaking { animation: shake 0.35s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%      { transform: translateX(-8px); }
+      75%      { transform: translateX(8px); }
+    }
+    .vs { font-size: 4em; color: #ff00ff; text-shadow: 0 0 30px #ff00ff; }
+
+    /* ── HP / Energy bars ── */
+    .bar-wrap { background: #222; border-radius: 6px; overflow: hidden; margin-top: 6px; height: 18px; }
+    .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+    .bar-fill.hp    { background: linear-gradient(90deg, #0f0, #0ff); }
+    .bar-fill.hp.low { background: linear-gradient(90deg, #f44, #f90); }
+    .bar-fill.energy { background: linear-gradient(90deg, #48f, #0ff); }
+
+    /* ── Boss ability tag ── */
+    .boss-ability {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border: 1px solid #f0f;
+      border-radius: 6px;
+      font-size: 0.85em;
+      color: #f0f;
+      background: rgba(255,0,255,0.1);
+    }
+
+    /* ── Terminal log ── */
+    .terminal-log {
+      min-height: 160px;
+      margin: 25px 0;
+      padding: 20px;
+      background: #000;
+      border: 3px dashed #0f0;
+      color: #0f0;
+      font-size: 1.2em;
+      text-align: left;
+      white-space: pre-wrap;
+      box-shadow: inset 0 0 30px #0f0;
+      overflow-y: auto;
+      max-height: 380px;
+      line-height: 1.4;
+    }
+
+    /* ── Card deck ── */
+    .card-deck {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 20px 35px;
+      font-size: 1.3em;
+      background: linear-gradient(135deg, #001122, #220044);
+      border-radius: 12px;
+      cursor: pointer;
+      min-width: 300px;
+      text-align: left;
+      transition: all 0.3s;
+      box-shadow: 0 0 25px #444;
+      border: 3px solid;
+      font-family: 'Courier New', monospace;
+      color: inherit;
+    }
+    button:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    button.offensive       { border-color: #ff4444; color: #ff6666; box-shadow: 0 0 25px #ff4444; }
+    button.offensive:hover:not(:disabled) { border-color: #ff8888; color: #ffaaaa; box-shadow: 0 0 50px #ff4444; transform: scale(1.06); }
+
+    button.defensive       { border-color: #4488ff; color: #66aaff; box-shadow: 0 0 25px #4488ff; }
+    button.defensive:hover:not(:disabled) { border-color: #88aaff; color: #aaccff; box-shadow: 0 0 50px #4488ff; transform: scale(1.06); }
+
+    button.relic           { border-color: #ffdd00; color: #ffdd00; box-shadow: 0 0 25px #ffdd00; min-width: 340px; }
+    button.relic:hover:not(:disabled) { border-color: #ffff66; color: #ffff99; box-shadow: 0 0 50px #ffdd00; transform: scale(1.08); }
+
+    /* ── Restart ── */
+    #restart {
+      margin-top: 30px; padding: 18px 60px; font-size: 1.7em;
+      background: #000; color: #ff0; border: 4px solid #ff0;
+      border-radius: 12px; cursor: pointer; min-width: auto;
+    }
+    #restart:hover { background: #ff0; color: #000; box-shadow: 0 0 50px #ff0; }
+
+    /* ── Utility ── */
+    .victory { color: #0f0 !important; font-weight: bold; font-size: 1.3em; }
+    .warning { color: #ff9900 !important; }
+    .danger  { color: #f44 !important; }
+    .info    { color: #0ff !important; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Terminal Dream – Infinite</h1>
+
+  <div class="music-controls">
+    <button class="music-btn" id="musicBtn">▶ Play Music</button>
+    <div class="volume-container">
+      <label for="volumeSlider">Volume:</label>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+    </div>
+  </div>
+
+  <div class="meta-info">
+    <strong>Ascension Tier:</strong> <span id="asc-tier">0</span><br>
+    <strong>Permanent Relics:</strong> <span id="perm-relics">None</span>
+  </div>
+
+  <div class="battle-grid">
+    <div class="entity" id="player-entity">
+      <h2 style="color:#0ff;">You</h2>
+      <div id="player-hp-text">HP: 150 / 150</div>
+      <div class="bar-wrap"><div class="bar-fill hp" id="player-hp-bar" style="width:100%"></div></div>
+      <div id="player-energy-text" style="margin-top:10px;">Energy: 12 / 12</div>
+      <div class="bar-wrap"><div class="bar-fill energy" id="player-energy-bar" style="width:100%"></div></div>
+    </div>
+
+    <div class="vs">VS</div>
+
+    <div class="entity" id="enemy-entity">
+      <h2 id="enemy-name" style="color:#f0f;">???</h2>
+      <div id="enemy-ability" class="boss-ability" style="display:none;"></div>
+      <div id="enemy-hp-text">HP: ??? / ???</div>
+      <div class="bar-wrap"><div class="bar-fill hp" id="enemy-hp-bar" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <div id="log" class="terminal-log"></div>
+
+  <div class="card-deck" id="card-deck">
+    <button id="btn1" onclick="choose(0)"></button>
+    <button id="btn2" onclick="choose(1)"></button>
+    <button id="btn3" onclick="choose(2)"></button>
+  </div>
+
+  <button id="restart" style="display:none;" onclick="location.reload()">⟳ New Run</button>
+</div>
+
+<audio id="bgm" loop>
+  <source src="OST/zweimael.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  MUSIC
+// ═══════════════════════════════════════════════════════════════════
+const bgm          = document.getElementById("bgm");
+const musicBtn     = document.getElementById("musicBtn");
+const volumeSlider = document.getElementById("volumeSlider");
+
+volumeSlider.addEventListener("input", () => { bgm.volume = volumeSlider.value; });
+musicBtn.addEventListener("click", () => {
+  if (bgm.paused) {
+    bgm.play().catch(() => {});
+    musicBtn.textContent = "⏸ Pause Music";
+    musicBtn.classList.add("playing");
+  } else {
+    bgm.pause();
+    musicBtn.textContent = "▶ Play Music";
+    musicBtn.classList.remove("playing");
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  PERSISTENT STATE  (survives death across runs)
+// ═══════════════════════════════════════════════════════════════════
+let permanentRelics  = JSON.parse( localStorage.getItem("td_permRelics")) || [];
+let ascensionCount   = parseInt(localStorage.getItem("td_ascensionCount")) || 0;
+let ascensionPerks   = JSON.parse(localStorage.getItem("td_ascensionPerks")) || [];
+
+// ── one-time migration: strip legacy cosmetic relics (no effect field) and orphan dmg key ──
+if (localStorage.getItem("td_permDmg") !== null) {
+  localStorage.removeItem("td_permDmg");
+  permanentRelics = permanentRelics.filter(r => r.effect);
+  localStorage.setItem("td_permRelics", JSON.stringify(permanentRelics));
+}
+
+function savePerm() {
+  localStorage.setItem("td_permRelics", JSON.stringify(permanentRelics));
+  localStorage.setItem("td_ascensionCount", ascensionCount);
+  localStorage.setItem("td_ascensionPerks", JSON.stringify(ascensionPerks));
+}
+
+// Relics granted on death. One is picked randomly each time you die.
+// These stack across deaths and apply passively at the start of every run.
+const PERM_RELIC_POOL = [
+  { name:"Ghost Echo",    effect:"permDmg",        value:0.07, desc:"+7% DMG (permanent)" },
+  { name:"Ash Core",      effect:"permHp",         value:20,   desc:"+20 Max HP (permanent)" },
+  { name:"Void Seed",     effect:"permEnergy",     value:2,    desc:"+2 Max Energy (permanent)" },
+  { name:"Dark Pulse",    effect:"permHealPost",   value:10,   desc:"+10 HP between fights (permanent)" },
+  { name:"Remnant",       effect:"permBlock",      value:8,    desc:"+8 shield on Firewall (permanent)" },
+  { name:"Fractured Time",effect:"permRegen",      value:0.4,  desc:"+0.4 energy/turn (permanent)" }
+];
+
+// Ascension perks granted at depth 50+. Powerful, build-defining, PERMANENT.
+// Each ascension also increases enemy scaling to keep challenge ramping.
+const ASCENSION_PERK_POOL = [
+  { name:"Overclock",       effect:"ascDmg",       value:0.15, value2:1,    desc:"+15% DMG, +1 max energy" },
+  { name:"Fortified Core",  effect:"ascHp",        value:50,   value2:0.25, desc:"+50 Max HP, +25% heal between fights" },
+  { name:"Adaptive Shield", effect:"ascBlock",     value:15,   desc:"+15 block on Firewall permanently" },
+  { name:"Energy Siphon",   effect:"ascRegen",     value:1.5,  desc:"+1.5 energy/turn permanently" },
+  { name:"Critical Strike", effect:"ascCrit",      value:0.20, desc:"20% chance to deal 2× damage" },
+  { name:"Vampiric Blade",  effect:"ascVamp",      value:0.25, desc:"Heal 25% of damage dealt" },
+  { name:"Nimble Stance",   effect:"ascDodge",     value:0.15, desc:"15% chance to dodge enemy attacks" },
+  { name:"Berserker",       effect:"ascBerserker", value:0.30, value2:-20, desc:"+30% DMG, -20 Max HP" },
+  { name:"Glass Cannon",    effect:"ascGlass",     value:-1,   value2:0.20, desc:"Skills cost -1 energy, +20% damage taken" },
+  { name:"Phoenix Heart",   effect:"ascPhoenix",   value:1,    desc:"Revive once per run at 50% HP" },
+  { name:"Momentum",        effect:"ascMomentum",  value:0.05, desc:"+5% DMG per consecutive attack (resets on defense)" },
+  { name:"Perfect Parry",   effect:"ascParry",     value:20,   desc:"Parry heals +20 (instead of +10)" }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  GAME DATA
+// ═══════════════════════════════════════════════════════════════════
+const SKILLS = [
+  { name:"Pixel Barrage",   cost:1, dmg:11,  desc:"11 damage shot",          type:"offensive" },
+  { name:"Code Cleave",     cost:2, dmg:21,  desc:"21 damage slash",         type:"offensive" },
+  { name:"Data Nova",       cost:3, dmg:32,  desc:"32 damage burst",         type:"offensive" },
+  { name:"Neural Overload", cost:3, dmg:40,  desc:"40 high damage",          type:"offensive" },
+  { name:"Fractal Lance",   cost:2, dmg:25,  desc:"25 piercing strike",      type:"offensive", pierce:true },
+  { name:"Void Pulse",      cost:4, dmg:52,  desc:"52 massive hit",          type:"offensive" },
+  { name:"Parry Matrix",    cost:1,          desc:"Block next attack + heal 10", type:"defensive", parry:true },
+  { name:"Firewall Shell",  cost:2, block:18,desc:"Block 18 damage next turn",  type:"defensive" },
+  { name:"Recharge Core",   cost:2, energy:3,desc:"Gain +3 energy",          type:"defensive" },
+  { name:"Regen Node",      cost:1, heal:15, desc:"Heal 15 HP",              type:"defensive" }
+];
+
+const RELIC_POOL = [
+  { name:"Echo Shard",      effect:"dmg",        value:0.08, desc:"+8% DMG"               },
+  { name:"Core Overload",   effect:"energy",     value:2,    desc:"+2 Max Energy"         },
+  { name:"Vital Node",      effect:"hp",         value:30,   desc:"+30 Max HP"            },
+  { name:"Pulse Amp",       effect:"healPost",   value:15,   desc:"+15 HP between fights" },
+  { name:"Shield Fragment", effect:"block",      value:10,   desc:"+10 block on Firewall" },
+  { name:"Data Rush",       effect:"energyRegen",value:0.5,  desc:"+0.5 energy/turn"      }
+];
+
+// Each boss now has an `ability` label and its unique logic is handled in enemyTurn().
+const BOSS_TEMPLATES = [
+  { name:"Grumpy Cat",       baseHp:198, def:16, auto:20, ability:"Counter: retaliates 16 dmg on every hit it takes" },
+  { name:"Distracted BF",    baseHp:185, def:11, auto:23, ability:"Dodge: 45% chance to dodge your attack" },
+  { name:"This Is Fine",     baseHp:223, def:13, auto:17, ability:"Regen: heals 22 HP per turn" },
+  { name:"Success Kid",      baseHp:178, def:14, auto:25, ability:"Low HP Buff: 2.0× ATK below 40% HP" },
+  { name:"Mocking Sponge",   baseHp:206, def:12, auto:21, ability:"Echo: copies 85% of your last damage back" },
+  { name:"Expanding Brain",  baseHp:190, def:10, auto:18, ability:"Ramp: gains +11 ATK each turn" },
+  { name:"Doge",             baseHp:219, def:17, auto:22, ability:"Random: ATK swings ±50% each turn" }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  RUN STATE
+// ═══════════════════════════════════════════════════════════════════
+let player, enemy, currentDepth, inputLocked;
+
+function initPlayer() {
+  player = {
+    hp: 150, maxHp: 150,
+    energy: 12, maxEnergy: 12,
+    dmgMult: 1,
+    healPost: 18,
+    extraBlock: 0,
+    extraRegen: 0,
+    activeRelics: [],
+    // ── ascension runtime state ──
+    phoenixUsed: false,      // Phoenix Heart: revive once
+    momentumStack: 0,        // Momentum: consecutive attack counter
+    damageTakenMult: 1,      // Glass Cannon: damage taken multiplier
+    critChance: 0,           // Critical Strike chance
+    vampRate: 0,             // Vampiric Blade: % of dmg healed
+    dodgeChance: 0           // Nimble Stance: player dodge chance
+  };
+}
+
+function resetRun() {
+  initPlayer();
+  currentDepth = 0;
+  inputLocked  = false;
+  applyRelics();
+  logMsg("Welcome to Terminal Dream.");
+  logMsg("Purge the corruption. Survive forever.");
+  spawnNextEnemy();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════════════════
+const log              = document.getElementById("log");
+const btns             = [document.getElementById("btn1"), document.getElementById("btn2"), document.getElementById("btn3")];
+const playerHpText     = document.getElementById("player-hp-text");
+const playerEnergyText = document.getElementById("player-energy-text");
+const playerHpBar      = document.getElementById("player-hp-bar");
+const playerEnergyBar  = document.getElementById("player-energy-bar");
+const enemyHpText      = document.getElementById("enemy-hp-text");
+const enemyHpBar       = document.getElementById("enemy-hp-bar");
+const enemyNameEl      = document.getElementById("enemy-name");
+const enemyAbilityEl   = document.getElementById("enemy-ability");
+const permRelicsEl     = document.getElementById("perm-relics");
+const ascTierEl        = document.getElementById("asc-tier");
+const playerEntity     = document.getElementById("player-entity");
+const enemyEntity      = document.getElementById("enemy-entity");
+const restartBtn       = document.getElementById("restart");
+
+// ═══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function logMsg(msg) {
+  log.innerHTML += msg + "<br>";
+  log.scrollTop  = log.scrollHeight;
+}
+
+function shake(el) {
+  el.classList.remove("shaking");
+  void el.offsetWidth; // force reflow
+  el.classList.add("shaking");
+  setTimeout(() => el.classList.remove("shaking"), 400);
+}
+
+function rand(min, max) { return min + Math.random() * (max - min); }
+function pick(arr)       { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ═══════════════════════════════════════════════════════════════════
+//  UI UPDATE
+// ═══════════════════════════════════════════════════════════════════
+function updateUI() {
+  // Player
+  const hpPct = Math.max(0, player.hp / player.maxHp) * 100;
+  playerHpText.textContent     = `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
+  playerHpBar.style.width      = hpPct + "%";
+  playerHpBar.className        = "bar-fill hp" + (hpPct < 30 ? " low" : "");
+
+  const ePct = Math.max(0, player.energy / player.maxEnergy) * 100;
+  playerEnergyText.textContent = `Energy: ${Math.floor(player.energy)} / ${player.maxEnergy}`;
+  playerEnergyBar.style.width  = ePct + "%";
+
+  // Enemy
+  if (enemy && enemy.maxHp) {
+    const eHpPct = Math.max(0, enemy.hp / enemy.maxHp) * 100;
+    enemyHpText.textContent  = `HP: ${Math.floor(enemy.hp)} / ${Math.floor(enemy.maxHp)}`;
+    enemyHpBar.style.width   = eHpPct + "%";
+    enemyHpBar.className     = "bar-fill hp" + (eHpPct < 30 ? " low" : "");
+    enemyNameEl.textContent  = enemy.name;
+  }
+
+  // Perm info
+  ascTierEl.textContent = ascensionCount;
+  const permText = permanentRelics.length ? permanentRelics.map(r => r.name + " (" + r.desc + ")").join(" | ") : "None";
+  const ascText  = ascensionPerks.length  ? ascensionPerks.map(p => p.name + " (" + p.desc + ")").join(" | ") : "";
+  permRelicsEl.textContent = ascText ? permText + " | " + ascText : permText;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  RELICS  (in-run)
+// ═══════════════════════════════════════════════════════════════════
+function applyRelics() {
+  // ── in-run relic bonuses ──
+  let dmgB = 0, energyB = 0, hpB = 0, healB = 0, blockB = 0, regenB = 0;
+  player.activeRelics.forEach(r => {
+    if (r.effect === "dmg")         dmgB   += r.value;
+    if (r.effect === "energy")      energyB+= r.value;
+    if (r.effect === "hp")          hpB    += r.value;
+    if (r.effect === "healPost")    healB  += r.value;
+    if (r.effect === "block")       blockB += r.value;
+    if (r.effect === "energyRegen") regenB += r.value;
+  });
+
+  // ── permanent relic bonuses (stack on top) ──
+  let permDmgB = 0, permHpB = 0, permEnergyB = 0, permHealB = 0, permBlockB = 0, permRegenB = 0;
+  permanentRelics.forEach(r => {
+    if (r.effect === "permDmg")      permDmgB    += r.value;
+    if (r.effect === "permHp")       permHpB     += r.value;
+    if (r.effect === "permEnergy")   permEnergyB += r.value;
+    if (r.effect === "permHealPost") permHealB   += r.value;
+    if (r.effect === "permBlock")    permBlockB  += r.value;
+    if (r.effect === "permRegen")    permRegenB  += r.value;
+  });
+
+  // ── ascension perk bonuses (stack on top) ──
+  let ascDmgB = 0, ascHpB = 0, ascEnergyB = 0, ascHealMultB = 0, ascBlockB = 0, ascRegenB = 0;
+  let ascCostReduction = 0, ascDamageTakenMult = 1;
+  player.critChance = 0;
+  player.vampRate   = 0;
+  player.dodgeChance= 0;
+
+  ascensionPerks.forEach(p => {
+    if (p.effect === "ascDmg")       { ascDmgB += p.value; ascEnergyB += p.value2; }
+    if (p.effect === "ascHp")        { ascHpB += p.value; ascHealMultB += p.value2; }
+    if (p.effect === "ascBlock")     ascBlockB  += p.value;
+    if (p.effect === "ascRegen")     ascRegenB  += p.value;
+    if (p.effect === "ascCrit")      player.critChance += p.value;
+    if (p.effect === "ascVamp")      player.vampRate   += p.value;
+    if (p.effect === "ascDodge")     player.dodgeChance+= p.value;
+    if (p.effect === "ascBerserker") { ascDmgB += p.value; ascHpB += p.value2; }
+    if (p.effect === "ascGlass")     { ascCostReduction += Math.abs(p.value); ascDamageTakenMult += p.value2; }
+    if (p.effect === "ascParry")     player.parryHealBonus = p.value;
+    // ascPhoenix and ascMomentum are passive flags checked elsewhere
+  });
+
+  player.dmgMult     = 1 + dmgB + permDmgB + ascDmgB;
+  player.maxEnergy   = 12 + energyB + permEnergyB + ascEnergyB;
+  player.maxHp       = 150 + hpB + permHpB + ascHpB;
+  player.healPost    = Math.floor((18 + healB + permHealB) * (1 + ascHealMultB));
+  player.extraBlock  = blockB + permBlockB + ascBlockB;
+  player.extraRegen  = regenB + permRegenB + ascRegenB;
+  player.skillCostReduction = ascCostReduction;
+  player.damageTakenMult    = ascDamageTakenMult;
+
+  // Clamp current values to new maxes
+  player.hp     = Math.min(player.maxHp,     player.hp);
+  player.energy = Math.min(player.maxEnergy, player.energy);
+}
+
+// Pick two DISTINCT relics for the reward screen
+function pickDistinctRelics(n) {
+  const shuffled = [...RELIC_POOL].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ENEMY SPAWN
+// ═══════════════════════════════════════════════════════════════════
+function spawnNextEnemy() {
+  currentDepth++;
+  logMsg(`<span class="info">── Depth ${currentDepth} ──</span>`);
+
+  const template = pick(BOSS_TEMPLATES);
+  const baseScale = 0.15 + (ascensionCount * 0.03);  // scaling ramps with ascensions
+  const scale     = 1 + (currentDepth - 1) * baseScale;
+  const ascMult   = 1 + (ascensionCount * 0.05);     // +5% stats per ascension
+
+  enemy = {
+    name:    template.name,
+    hp:      template.baseHp * scale * ascMult,
+    maxHp:   template.baseHp * scale * ascMult,
+    def:     template.def  * scale * ascMult,
+    auto:    template.auto * scale * ascMult,
+    ability: template.ability,
+    // ── per-boss state ──
+    counter:       template.name === "Grumpy Cat"       ? 16 * scale * ascMult * 1.1 : 0,
+    dodgeChance:   template.name === "Distracted BF"    ? 0.45        : 0,
+    regen:         template.name === "This Is Fine"     ? 22 * scale * ascMult * 1.2 : 0,
+    lowBuff:       template.name === "Success Kid"      ? 2.0         : 0,
+    echoRate:      template.name === "Mocking Sponge"   ? 0.85        : 0,
+    rampPerTurn:   template.name === "Expanding Brain"  ? 11 * scale * ascMult * 1.15 : 0,
+    isRandom:      template.name === "Doge",
+    // ── runtime tracking ──
+    lastPlayerDmg: 0,
+    blockShield:   0   // leftover shield from Firewall / Parry
+  };
+
+  // Show ability tag
+  enemyAbilityEl.textContent = enemy.ability;
+  enemyAbilityEl.style.display = "inline-block";
+
+  // Reset player energy for the new fight (no double-regen)
+  player.energy = player.maxEnergy;
+
+  updateUI();
+  offerSkillChoices();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TURN FLOW  –  offer → player acts → enemy acts → next offer
+// ═══════════════════════════════════════════════════════════════════
+
+/** Show three random skill cards */
+function offerSkillChoices() {
+  // Tick energy regen (only mid-fight; first turn already has full energy from spawn/nextBattle)
+  if (enemy.turnCount > 0) {
+    player.energy = Math.min(player.maxEnergy, player.energy + 1 + player.extraRegen);
+  }
+  enemy.turnCount = (enemy.turnCount || 0) + 1;
+
+  // Pick 3 distinct skills
+  const shuffled = [...SKILLS].sort(() => Math.random() - 0.5);
+  const choices  = shuffled.slice(0, 3);
+
+  choices.forEach((skill, i) => {
+    const btn = btns[i];
+    const finalCost = Math.max(0, skill.cost - (player.skillCostReduction || 0));
+    btn.textContent     = `${skill.name}  (${finalCost}e)\n${skill.desc}`;
+    btn.dataset.skill   = JSON.stringify(skill);
+    btn.dataset.relic   = "";
+    btn.dataset.ascension = "";
+    btn.className       = skill.type;
+    btn.style.display   = "inline-block";
+    btn.disabled        = player.energy < finalCost;
+  });
+
+  inputLocked = false;
+  logMsg("Choose your action:");
+  updateUI();
+}
+
+/** Show two distinct relic reward cards */
+function offerRelicChoices() {
+  const relics = pickDistinctRelics(2);
+
+  relics.forEach((relic, i) => {
+    const btn = btns[i];
+    btn.textContent   = `Take: ${relic.name}\n${relic.desc}`;
+    btn.dataset.relic = JSON.stringify(relic);
+    btn.dataset.skill = "";
+    btn.dataset.ascension = "";
+    btn.className     = "relic";
+    btn.style.display = "inline-block";
+    btn.disabled      = false;
+  });
+
+  // Hide third button for relic screen
+  btns[2].style.display = "none";
+
+  inputLocked = false;
+  logMsg("<span class='victory'>Purge complete! Choose a relic to carry forward:</span>");
+  updateUI();
+}
+
+/** Show three distinct ascension perk cards (at depth 50+) */
+function offerAscensionChoices() {
+  const shuffled = [...ASCENSION_PERK_POOL].sort(() => Math.random() - 0.5);
+  const perks    = shuffled.slice(0, 3);
+
+  perks.forEach((perk, i) => {
+    const btn = btns[i];
+    btn.textContent       = `ASCEND: ${perk.name}\n${perk.desc}`;
+    btn.dataset.ascension = JSON.stringify(perk);
+    btn.dataset.relic     = "";
+    btn.dataset.skill     = "";
+    btn.className         = "relic";  // gold styling
+    btn.style.display     = "inline-block";
+    btn.disabled          = false;
+  });
+
+  inputLocked = false;
+  logMsg("<span class='victory'>╔═══ ASCENSION AVAILABLE ═══╗</span>");
+  logMsg(`<span class='info'>You have reached depth ${currentDepth}. Choose an ascension perk.</span>`);
+  logMsg(`<span class='warning'>Depth will reset to 1. Enemies will grow stronger. Your perk is PERMANENT.</span>`);
+  updateUI();
+}
+
+/** Disable all card buttons while processing */
+function lockInput() {
+  inputLocked = true;
+  btns.forEach(b => b.disabled = true);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PLAYER ACTION
+// ═══════════════════════════════════════════════════════════════════
+function choose(index) {
+  if (inputLocked) return;
+  lockInput();
+
+  const btn = btns[index];
+
+  /* ── Ascension perk pick ── */
+  if (btn.dataset.ascension) {
+    const perk = JSON.parse(btn.dataset.ascension);
+    ascensionPerks.push(perk);
+    ascensionCount++;
+    savePerm();
+    
+    logMsg(`<span class='victory'>╚═══ ASCENDED ═══╝</span>`);
+    logMsg(`<span class='info'>Acquired: ${perk.name} – ${perk.desc}</span>`);
+    logMsg(`<span class='warning'>Ascension Tier ${ascensionCount}. Enemies grow ${(ascensionCount * 5)}% stronger.</span>`);
+    
+    applyRelics();  // re-apply with new perk
+    currentDepth = 0;  // reset depth counter
+    player.phoenixUsed = false;  // reset phoenix if applicable
+    player.momentumStack = 0;
+    updateUI();
+    
+    setTimeout(() => {
+      spawnNextEnemy();  // start fresh at depth 1
+    }, 2000);
+    return;
+  }
+
+  /* ── Relic reward pick ── */
+  if (btn.dataset.relic) {
+    const relic = JSON.parse(btn.dataset.relic);
+    player.activeRelics.push(relic);
+    logMsg(`<span class='victory'>Acquired: ${relic.name} – ${relic.desc}</span>`);
+    applyRelics();
+    updateUI();
+    setTimeout(() => {
+      // Heal between fights
+      player.hp = Math.min(player.maxHp, player.hp + player.healPost);
+      logMsg(`<span class="info">Healed ${player.healPost} HP between fights.</span>`);
+      
+      // Check for ascension trigger at depth 50+
+      if (currentDepth >= 50 && currentDepth % 50 === 0) {
+        offerAscensionChoices();
+      } else {
+        spawnNextEnemy();
+      }
+    }, 1600);
+    return;
+  }
+
+  /* ── Skill use ── */
+  const skill = JSON.parse(btn.dataset.skill);
+  
+  // Glass Cannon: reduce skill cost
+  const finalCost = Math.max(0, skill.cost - (player.skillCostReduction || 0));
+
+  if (player.energy < finalCost) {
+    logMsg("<span class='warning'>Not enough energy.</span>");
+    inputLocked = false;
+    btns.forEach((b, i) => {
+      const s = b.dataset.skill ? JSON.parse(b.dataset.skill) : null;
+      const sCost = s ? Math.max(0, s.cost - (player.skillCostReduction || 0)) : 0;
+      b.disabled = s ? player.energy < sCost : false;
+    });
+    return;
+  }
+
+  player.energy -= finalCost;
+  logMsg(`You use <b>${skill.name}</b>`);
+
+  // Momentum: track consecutive attack skills
+  if (skill.dmg && ascensionPerks.some(p => p.effect === "ascMomentum")) {
+    player.momentumStack = (player.momentumStack || 0) + 1;
+    const bonus = player.momentumStack * 5;
+    logMsg(`<span class="info">→ Momentum: +${bonus}% DMG (${player.momentumStack} stack)</span>`);
+  } else if (skill.type === "defensive" && player.momentumStack > 0) {
+    player.momentumStack = 0;  // reset on defense
+    logMsg(`<span class="info">→ Momentum reset.</span>`);
+  }
+
+  /* -- Damage -- */
+  if (skill.dmg) {
+    const momentumBonus = ascensionPerks.some(p => p.effect === "ascMomentum") 
+      ? (player.momentumStack || 0) * 0.05 
+      : 0;
+    let rawDmg = skill.dmg * player.dmgMult * (1 + momentumBonus);
+
+    // Critical Strike: 20% chance for 2× damage
+    let isCrit = false;
+    if (player.critChance > 0 && Math.random() < player.critChance) {
+      rawDmg *= 2;
+      isCrit = true;
+    }
+
+    // Distracted BF: dodge check
+    if (enemy.dodgeChance && Math.random() < enemy.dodgeChance) {
+      logMsg(`<span class="warning">→ ${enemy.name} dodged!</span>`);
+      enemy.lastPlayerDmg = 0;
+      updateUI();
+      enemyTurn();
+      return;
+    }
+
+    let finalDmg = skill.pierce ? rawDmg : Math.max(1, rawDmg - enemy.def);
+    enemy.hp     -= finalDmg;
+    enemy.lastPlayerDmg = finalDmg;
+    
+    if (isCrit) {
+      logMsg(`→ <b class="warning">CRITICAL!</b> Deals <b>${Math.floor(finalDmg)}</b> damage`);
+    } else {
+      logMsg(`→ Deals <b>${Math.floor(finalDmg)}</b> damage`);
+    }
+    shake(enemyEntity);
+
+    // Vampiric Blade: heal % of damage dealt
+    if (player.vampRate > 0) {
+      const vampHeal = Math.floor(finalDmg * player.vampRate);
+      player.hp = Math.min(player.maxHp, player.hp + vampHeal);
+      logMsg(`<span class="info">→ Vampiric: healed ${vampHeal} HP</span>`);
+    }
+
+    // Grumpy Cat: counter damage
+    if (enemy.counter > 0) {
+      player.hp -= enemy.counter;
+      logMsg(`<span class="danger">→ Counter! You take ${Math.floor(enemy.counter)} damage.</span>`);
+      shake(playerEntity);
+    }
+  }
+
+  /* -- Heal -- */
+  if (skill.heal) {
+    player.hp = Math.min(player.maxHp, player.hp + skill.heal);
+    logMsg(`→ Heals <b>${skill.heal}</b> HP`);
+  }
+
+  /* -- Energy gain -- */
+  if (skill.energy) {
+    player.energy = Math.min(player.maxEnergy, player.energy + skill.energy);
+    logMsg(`→ Gains <b>${skill.energy}</b> energy`);
+  }
+
+  /* -- Block (Firewall Shell) -- */
+  if (skill.block) {
+    const total = skill.block + player.extraBlock;
+    enemy.blockShield += total;   // additive, not overwrite
+    logMsg(`→ Shield: blocks up to <b>${total}</b> damage next turn`);
+  }
+
+  /* -- Parry (full block + heal) -- */
+  if (skill.parry) {
+    enemy.blockShield = Infinity;  // guaranteed full block next hit
+    const parryHeal = 10 + (player.parryHealBonus || 0);  // Perfect Parry adds +20
+    player.hp = Math.min(player.maxHp, player.hp + parryHeal);
+    logMsg(`→ Perfect parry queued! Next attack fully blocked + heal ${parryHeal}`);
+  }
+
+  updateUI();
+
+  /* ── Enemy dead? ── */
+  if (enemy.hp <= 0) {
+    logMsg("<span class='victory'>Enemy purged!</span>");
+    lockInput();
+    setTimeout(offerRelicChoices, 1200);
+    return;
+  }
+
+  /* ── Player dead from counter? ── */
+  if (player.hp <= 0) {
+    handlePlayerDeath();
+    return;
+  }
+
+  enemyTurn();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ENEMY TURN
+// ═══════════════════════════════════════════════════════════════════
+function enemyTurn() {
+  let atk = enemy.auto;
+
+  // ── Expanding Brain: ramp ATK ──
+  if (enemy.rampPerTurn > 0) {
+    enemy.auto += enemy.rampPerTurn;
+    atk         = enemy.auto;
+    logMsg(`<span class="warning">→ ${enemy.name}'s mind expands… ATK now ${Math.floor(atk)}</span>`);
+  }
+
+  // ── Doge: random swing ──
+  if (enemy.isRandom) {
+    const swing = rand(0.5, 1.5);
+    atk *= swing;
+    logMsg(`<span class="info">→ Doge vibes… ATK modifier ${swing.toFixed(2)}×</span>`);
+  }
+
+  // ── Success Kid: low-HP buff ──
+  if (enemy.lowBuff && enemy.hp / enemy.maxHp < 0.4) {
+    atk *= enemy.lowBuff;
+    logMsg(`<span class="warning">→ ${enemy.name} is enraged! ATK ×${enemy.lowBuff}</span>`);
+  }
+
+  // ── Mocking Sponge: echo BEFORE attacking ──
+  if (enemy.echoRate > 0 && enemy.lastPlayerDmg > 0) {
+    const echoDmg = Math.floor(enemy.lastPlayerDmg * enemy.echoRate);
+    player.hp -= echoDmg;
+    logMsg(`<span class="danger">→ Echo! ${enemy.name} mirrors ${echoDmg} damage back.</span>`);
+    shake(playerEntity);
+    enemy.lastPlayerDmg = 0;   // echo fires once per hit
+    if (player.hp <= 0) { handlePlayerDeath(); return; }
+  }
+
+  // ── Apply player's shield ──
+  let blocked = 0;
+  if (enemy.blockShield > 0) {
+    blocked = Math.min(atk, enemy.blockShield);
+    atk     = Math.max(0, atk - blocked);
+    enemy.blockShield = enemy.blockShield === Infinity ? 0 : enemy.blockShield - blocked;
+    if (atk === 0) {
+      logMsg(`→ <b>Attack fully blocked!</b>`);
+    } else {
+      logMsg(`→ Shield absorbed ${Math.floor(blocked)} damage.`);
+    }
+  }
+
+  // ── Deal remaining damage ──
+  if (atk > 0) {
+    // Nimble Stance: player dodge chance
+    if (player.dodgeChance > 0 && Math.random() < player.dodgeChance) {
+      logMsg(`<span class="info">→ You dodged the attack!</span>`);
+    } else {
+      const finalAtk = Math.floor(atk * (player.damageTakenMult || 1));
+      player.hp -= finalAtk;
+      logMsg(`<span class="danger">${enemy.name} attacks for <b>${finalAtk}</b> damage</span>`);
+      shake(playerEntity);
+    }
+  }
+
+  // ── This Is Fine: regen ──
+  if (enemy.regen > 0) {
+    enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.regen);
+    logMsg(`<span class="warning">→ ${enemy.name} regens <b>${Math.floor(enemy.regen)}</b> HP</span>`);
+  }
+
+  updateUI();
+
+  if (player.hp <= 0) { handlePlayerDeath(); return; }
+
+  // Next player turn
+  offerSkillChoices();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DEATH
+// ═══════════════════════════════════════════════════════════════════
+function handlePlayerDeath() {
+  // Phoenix Heart: revive once per run
+  const hasPhoenix = ascensionPerks.some(p => p.effect === "ascPhoenix");
+  if (hasPhoenix && !player.phoenixUsed) {
+    player.phoenixUsed = true;
+    player.hp = Math.floor(player.maxHp * 0.5);
+    logMsg("<span class='warning'>You were deleted...</span>");
+    logMsg("<span class='victory'>╔═══ PHOENIX HEART ═══╗</span>");
+    logMsg("<span class='victory'>You rise from the ashes at 50% HP!</span>");
+    updateUI();
+    offerSkillChoices();  // continue the fight
+    return;
+  }
+
+  lockInput();
+  logMsg("<span class='warning'>You have been deleted…</span>");
+
+  // Grant one real permanent relic from the pool
+  const granted = pick(PERM_RELIC_POOL);
+  permanentRelics.push({ name: granted.name, effect: granted.effect, value: granted.value, desc: granted.desc });
+  savePerm();
+
+  logMsg(`<span class="info">A relic echoes into the next run: <b>${granted.name}</b> – ${granted.desc}</span>`);
+
+  restartBtn.style.display = "block";
+  btns.forEach(b => { b.style.display = "none"; });
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BETWEEN FIGHTS  –  heal then spawn
+// ═══════════════════════════════════════════════════════════════════
+function nextBattle() {
+  player.hp     = Math.min(player.maxHp, player.hp + player.healPost);
+  player.energy = player.maxEnergy;
+  logMsg(`<span class="info">Healed ${player.healPost} HP between fights.</span>`);
+  spawnNextEnemy();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════════════
+resetRun();
+</script>
+</body>
+</html>
