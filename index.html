@@ -50,6 +50,21 @@ section { min-height:100vh; padding:6rem 2rem 2rem; display:flex; flex-direction
 .pressure-fill { height:100%; background:linear-gradient(90deg,#00ff88,#ffff00,#ff0080); animation:ppulse 3s ease-in-out infinite; }
 @keyframes ppulse { 0%,100%{width:30%} 50%{width:90%} }
 .pressure-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#0a0a0a; font-weight:bold; mix-blend-mode:difference; text-shadow:0 0 5px #fff; }
+/* ── John sprite ── */
+#john-sprite {
+  display: block;
+  margin: 0 auto 1.5rem;
+  width: 80px;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  animation: john-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #00ffff);
+}
+@keyframes john-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
 /* ── CTA ── */
 .cta-button {
   background:linear-gradient(45deg,#00ff88,#00ffff); color:#0a0a0a;
@@ -117,11 +132,12 @@ footer { background:#0a0a0a; border-top:2px solid #00ff88; padding:2rem; text-al
     Endless hostile processes flood your terminal, each turn pushing the system closer to overload.
     Manage Pressure, ration your actions, and survive long enough to evolve.
   </p>
+  <img id="john-sprite" src="john.png" alt="John">
   <div class="pressure-meter">
     <div class="pressure-fill"></div>
     <div class="pressure-label">PRESSURE: CRITICAL</div>
   </div>
-  <button class="cta-button launch" onclick="window.open('theblacksilence.html', '_blank')">▶ LAUNCH GAME</button>
+  <button class="cta-button launch" onclick="window.open('TheBlackSilence.html', '_blank')">▶ LAUNCH GAME</button>
   <p class="warning-txt">⚠ SYSTEM COLLAPSE IMMINENT ⚠</p>
 </section>
 
