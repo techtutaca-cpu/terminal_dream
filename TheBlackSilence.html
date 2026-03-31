@@ -19,31 +19,82 @@
 #pwa-modal-inner h3{color:#0ff;margin:0 0 16px;font-size:1.3em;}
 #pwa-modal-inner .pwa-section{margin-top:18px;padding:14px;background:rgba(0,255,255,0.05);border-left:3px solid #0ff;border-radius:6px;}
 #pwa-modal-inner .pwa-section b{color:#0ff;}
-@media(max-width:768px){
-  .container{margin:8px;padding:16px;border-radius:12px;}
-  h1{font-size:2em;}
-  #hub-screen{padding:20px 10px !important;}
-  #hub-screen>div{grid-template-columns:1fr 1fr !important;gap:12px !important;max-width:100% !important;}
-  .hub-btn{padding:14px 10px;font-size:1em;}
-  .battle-grid{gap:16px;}
-  .entity{min-width:0;width:100%;padding:16px;}
-  .vs{font-size:2.5em;}
-  .card-deck{gap:14px;}
-  button{min-width:0;font-size:1.1em;padding:14px 18px;}
-  .terminal-log{font-size:1em;max-height:220px;padding:12px;}
-  .meta-info{font-size:1em;padding:8px;}
+/* ── Tablet (≤900px) ─────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .container{margin:10px;padding:16px;border-radius:14px;box-shadow:0 0 30px #0f0;}
+  h1{font-size:1.7em !important;margin-bottom:4px;}
+  .meta-info{font-size:0.85em;padding:7px;line-height:1.5;}
+
+  /* Hub */
+  #hub-screen{padding:14px 8px !important;}
+  #hub-screen>div{gap:8px !important;max-width:100% !important;}
+  .hub-btn{padding:11px 9px !important;font-size:0.9em !important;}
+  .hub-btn small{font-size:0.78em;}
+
+  /* Battle: enemy on top, player on bottom */
+  .battle-grid{flex-direction:column-reverse !important;align-items:stretch !important;gap:8px !important;margin:10px 0 !important;}
+  .entity{min-width:0 !important;width:100% !important;padding:12px !important;box-sizing:border-box;box-shadow:0 0 12px #0ff;}
+  .entity h2{font-size:1em !important;margin:0 0 5px !important;}
+  .vs{font-size:1.6em !important;padding:2px 0 !important;flex-direction:row !important;gap:10px !important;}
+  #depth-counter{font-size:0.7em !important;}
+  .bar-wrap{height:13px !important;}
+
+  /* Skills: stacked full-width */
+  .card-deck{flex-direction:column !important;gap:7px !important;margin:10px 0 !important;perspective:none !important;}
+  .card-deck button,.card-deck #btn1,.card-deck #btn2,.card-deck #btn3{
+    min-width:0 !important;width:100% !important;
+    padding:11px 14px !important;font-size:0.95em !important;
+    text-align:left !important;transform:none !important;
+  }
+  button.relic{min-width:0 !important;width:100% !important;}
+
+  /* Log */
+  .terminal-log{font-size:0.88em !important;max-height:150px !important;padding:10px !important;min-height:70px !important;margin:8px 0 !important;}
+
+  /* Fixed HUD buttons */
+  #overclockBtn,#resetRunBtn,#workshopBtn{font-size:0.78em !important;padding:8px 11px !important;}
 }
+
+/* ── Phone (≤480px) ──────────────────────────────────────────────────────── */
 @media(max-width:480px){
-  h1{font-size:1.5em;}
-  #hub-screen>div{grid-template-columns:1fr !important;}
-  .hub-btn{font-size:0.95em;}
-  button{font-size:1em;padding:12px 14px;}
-  .battle-grid{flex-direction:column;gap:10px;}
-  .entity{padding:12px;}
-  .vs{font-size:2em;}
-  .terminal-log{font-size:0.9em;}
-  .card-deck{gap:10px;}
-  .bar-wrap{height:14px;}
+  .container{margin:0 !important;padding:8px !important;border-radius:0 !important;border-left:none !important;border-right:none !important;box-shadow:none !important;}
+  h1{font-size:1.25em !important;}
+  .meta-info{font-size:0.72em !important;padding:5px !important;}
+
+  /* Hub: tight 2-col */
+  #hub-screen{padding:8px 5px !important;}
+  #hub-screen>div{grid-template-columns:1fr 1fr !important;gap:6px !important;max-width:100% !important;}
+  .hub-btn{padding:9px 6px !important;font-size:0.78em !important;border-radius:9px !important;border-width:2px !important;}
+  .hub-btn small{font-size:0.74em !important;}
+
+  /* Battle */
+  .entity{padding:9px !important;box-shadow:0 0 8px #0ff !important;}
+  .entity h2{font-size:0.95em !important;}
+  #player-hp-text,#player-energy-text,#player-vol-text,
+  #enemy-hp-text,#enemy2-hp-text{font-size:0.82em !important;}
+  .vs{font-size:1.2em !important;}
+  .bar-wrap{height:11px !important;}
+  .boss-ability{font-size:0.72em !important;padding:2px 6px !important;}
+
+  /* Skills */
+  .card-deck button,.card-deck #btn1,.card-deck #btn2,.card-deck #btn3{
+    font-size:0.85em !important;padding:10px 11px !important;
+  }
+
+  /* Log */
+  .terminal-log{font-size:0.78em !important;max-height:110px !important;padding:7px !important;min-height:60px !important;}
+
+  /* Fixed HUD buttons */
+  #overclockBtn{bottom:10px !important;right:10px !important;font-size:0.72em !important;padding:7px 9px !important;}
+  #resetRunBtn{bottom:10px !important;left:10px !important;font-size:0.72em !important;padding:7px 9px !important;}
+  #workshopBtn{bottom:54px !important;right:10px !important;font-size:0.72em !important;padding:5px 9px !important;}
+  #pwa-btn{font-size:0.72em !important;padding:5px 9px !important;top:6px !important;right:6px !important;}
+
+  /* No hover lift on touch screens */
+  button:hover:not(:disabled){transform:none !important;box-shadow:0 0 25px #444 !important;}
+  button.offensive:hover:not(:disabled){box-shadow:0 0 25px #ff4444 !important;}
+  button.defensive:hover:not(:disabled){box-shadow:0 0 25px #4488ff !important;}
+  button.relic:hover:not(:disabled){box-shadow:0 0 25px #ffdd00 !important;}
 }
 </style>
 <style>
@@ -212,6 +263,82 @@ button.relic:hover:not(:disabled)     { text-shadow: 0 0 12px #ffff99 !important
     rgba(0,0,0,0.93);
 }
 </style>
+
+<!-- RESPONSIVE — must come last to override everything above -->
+<style>
+@media(max-width:900px){
+  .container{margin:10px !important;padding:14px !important;border-radius:12px !important;box-shadow:0 0 25px rgba(0,255,0,0.4) !important;}
+  h1{font-size:1.6em !important;}
+  .meta-info{font-size:0.82em !important;padding:6px !important;letter-spacing:0 !important;}
+
+  /* Hub */
+  #hub-screen{padding:12px 8px !important;}
+  #hub-screen>div{gap:8px !important;max-width:100% !important;}
+  .hub-btn{padding:11px 9px !important;font-size:0.88em !important;}
+  #hub-screen button:hover{transform:none !important;filter:brightness(1.1) !important;}
+
+  /* Battle: enemy on top, player on bottom, full width */
+  .battle-grid{flex-direction:column-reverse !important;align-items:stretch !important;gap:8px !important;margin:10px 0 !important;}
+  .entity{min-width:0 !important;width:100% !important;padding:11px !important;box-sizing:border-box !important;animation:none !important;box-shadow:0 0 12px rgba(0,255,255,0.5) !important;}
+  .entity h2{font-size:1em !important;margin:0 0 4px !important;}
+  .vs{font-size:1.5em !important;padding:2px 0 !important;animation:none !important;}
+  #depth-counter{font-size:0.65em !important;}
+  .bar-wrap{height:13px !important;}
+
+  /* Skills: full-width stacked */
+  .card-deck{flex-direction:column !important;gap:7px !important;margin:10px 0 !important;}
+  #btn1,#btn2,#btn3{min-width:0 !important;width:100% !important;padding:12px 14px !important;font-size:0.93em !important;transform:none !important;}
+  button.relic{min-width:0 !important;}
+  #btn1:hover,#btn2:hover,#btn3:hover{transform:none !important;}
+
+  /* Log */
+  .terminal-log{font-size:0.86em !important;max-height:145px !important;padding:10px !important;min-height:65px !important;margin:8px 0 !important;}
+
+  /* HUD fixed buttons */
+  #overclockBtn,#resetRunBtn,#workshopBtn{font-size:0.78em !important;padding:8px 11px !important;}
+}
+
+@media(max-width:480px){
+  .container{margin:0 !important;padding:8px !important;border-radius:0 !important;border-left:none !important;border-right:none !important;box-shadow:none !important;}
+  h1{font-size:1.2em !important;}
+  .meta-info{font-size:0.7em !important;padding:5px !important;}
+
+  /* Hub: 2-col tight */
+  #hub-screen{padding:8px 5px !important;}
+  #hub-screen>div{grid-template-columns:1fr 1fr !important;gap:6px !important;}
+  .hub-btn{padding:9px 6px !important;font-size:0.76em !important;border-radius:8px !important;border-width:2px !important;}
+  .hub-btn small{font-size:0.72em !important;}
+  #hub-screen button:hover{transform:none !important;filter:none !important;}
+
+  /* Battle */
+  .entity{padding:9px !important;box-shadow:0 0 8px rgba(0,255,255,0.4) !important;}
+  .entity h2{font-size:0.92em !important;}
+  #player-hp-text,#player-energy-text,#player-vol-text,
+  #enemy-hp-text,#enemy2-hp-text{font-size:0.8em !important;}
+  .vs{font-size:1.1em !important;}
+  .bar-wrap{height:10px !important;}
+  .boss-ability{font-size:0.7em !important;padding:2px 5px !important;animation:none !important;}
+
+  /* Skills */
+  #btn1,#btn2,#btn3{font-size:0.82em !important;padding:10px 11px !important;}
+
+  /* Log */
+  .terminal-log{font-size:0.75em !important;max-height:105px !important;padding:7px !important;min-height:55px !important;}
+
+  /* HUD fixed */
+  #overclockBtn{bottom:10px !important;right:10px !important;font-size:0.7em !important;padding:7px 9px !important;}
+  #resetRunBtn{bottom:10px !important;left:10px !important;font-size:0.7em !important;padding:7px 9px !important;}
+  #workshopBtn{bottom:52px !important;right:10px !important;font-size:0.7em !important;padding:5px 9px !important;}
+  #pwa-btn{font-size:0.7em !important;padding:5px 9px !important;top:6px !important;right:6px !important;}
+
+  /* Kill all hover animations on touch */
+  button:hover:not(:disabled){transform:none !important;box-shadow:inherit !important;text-shadow:none !important;}
+  button.offensive:hover:not(:disabled){box-shadow:0 0 20px #ff4444 !important;}
+  button.defensive:hover:not(:disabled){box-shadow:0 0 20px #4488ff !important;}
+  button.relic:hover:not(:disabled){box-shadow:0 0 20px #ffdd00 !important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -4540,7 +4667,7 @@ function activateOverclock() {
 /** Stabilization: triggers when player drops below 25% HP (once per fight)
  *  Heals 35% max HP + temporary buffs: +15% DMG, +3 energy, +10 block for the fight */
 function checkStabilization() {
-  if (shopPurchases.lifeOverdrive < 1) return;
+  if (!(shopPurchases.lifeOverdrive >= 1)) return;
   if (!player || player.stabilizationUsed) return;
   if (player.hp > 0 && player.hp / player.maxHp <= 0.25) {
     player.stabilizationUsed = true;
